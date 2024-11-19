@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calendar with Time Slots</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Calendar container -->
+  <div id="calendar-container">
+    <div id="calendar">
+      <h1>Study Scheduler</h1>
+      <div class="calendar-grid">
+        <!-- Calendar days will be dynamically generated -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Popup Modal -->
+  <div id="popup-modal" class="hidden">
+    <div class="popup-content">
+      <h2>Schedule for <span id="selected-date"></span></h2>
+
+      <!-- Task List Display -->
+      <div id="task-list">
+        <p>No tasks yet for this date.</p>
+      </div>
+
+      <!-- Time Slot Selection -->
+      <label for="time-slot">Choose Time Slot:</label>
+      <select id="time-slot">
+        <option value="8:00 AM">8:00 AM</option>
+        <option value="9:00 AM">9:00 AM</option>
+        <option value="10:00 AM">10:00 AM</option>
+        <option value="11:00 AM">11:00 AM</option>
+        <option value="12:00 PM">12:00 PM</option>
+        <option value="1:00 PM">1:00 PM</option>
+        <option value="2:00 PM">2:00 PM</option>
+        <option value="3:00 PM">3:00 PM</option>
+        <option value="4:00 PM">4:00 PM</option>
+        <option value="5:00 PM">5:00 PM</option>
+        <option value="6:00 PM">6:00 PM</option>
+        <option value="7:00 PM">7:00 PM</option>
+        <option value="8:00 PM">8:00 PM</option>
+        <option value="9:00 PM">9:00 PM</option>
+        <option value="10:00 PM">10:00 PM</option>
+      </select>
+
+      <!-- Task Input -->
+      <label for="task-input">Task:</label>
+      <input type="text" id="task-input" placeholder="Enter your task">
+
+      <!-- Buttons -->
+      <button id="save-task">Save</button>
+      <button id="close-popup">Close</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
