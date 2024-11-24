@@ -3,16 +3,27 @@ const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const nodemailer = require('nodemailer'); // Free emailer
 const bodyParser = require('body-parser');
+const path = require('path');
 const schedule = require('node-schedule'); // For notifcations
 const cors = require('cors'); // For handling CORS issues should help connect back and front
+const fetch = require('node-fetch');
+const socketIo = require('socket.io');
+const http = require('http');
 require('dotenv').config(); // For the .env file
 
 const app = express();
+const server = http.createServer(app);
+const io = socketIo(server);
 const port = 3000;
 
 app.use(express.static('public'));
 app.use(bodyParser.json());
 app.use(cors()); // Allow requests from other origins
+// Serve files for different pages change names when all files are created
+app.get('/login', (req, res) => res.sendFile(path.join(__dirname, '/public/login.html')));
+app.get('/calendar', (req, res) => res.sendFile(path.join(__dirname, '/public/calendar.html')));
+app.get('/chatroom', (req, res) => res.sendFile(path.join(__dirname, '/public/chatroom.html')));
+
 
 // SQLite setup with file-based database
 const db = new sqlite3.Database('./study_group.db', (err) => {
@@ -38,6 +49,22 @@ db.serialize(() => {
       }
     }
   );
+
+  // Login endpoint
+app.post('/login', (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).send('Email is required.');
+  }
+
+  db.get('SELECT * FROM users WHERE email = ?', [email], (err, row) => {
+    if (err) return res.status(500).send('Error querying database.');
+    if (row) return res.status(200).json({ message: 'Login successful', user: row });
+    res.status(401).send('Invalid email.');
+  });
+});
+
 
   // Chat messages table linking to users by user_id
   db.run(
@@ -69,6 +96,22 @@ db.serialize(() => {
       }
     }
   );
+});
+
+// Fetch scheduled sessions
+app.get('/events', (req, res) => {
+  db.all('SELECT * FROM sessions', [], (err, rows) => {
+    if (err) return res.status(500).send('Error fetching events.');
+    res.json(rows);
+  });
+});
+
+// Fetch chat messages
+app.get('/messages', (req, res) => {
+  db.all('SELECT * FROM messages ORDER BY timestamp ASC', [], (err, rows) => {
+    if (err) return res.status(500).send('Error fetching messages.');
+    res.json(rows);
+  });
 });
 
 // Save chat messages
@@ -197,9 +240,37 @@ app.post('/schedule-session', (req, res) => {
   );
 });
 
+// Real-time chat integration using Socket.IO
+io.on('connection', (socket) => {
+  console.log('A user connected.');
+
+  // Listen for incoming messages
+  socket.on('chat-message', (data) => {
+    // Save message to the database
+    db.run(
+      'INSERT INTO messages (user_id, content) VALUES (?, ?)',
+      [data.user_id, data.content],
+      (err) => {
+        if (err) {
+          console.error('Error saving message to DB:', err);
+          socket.emit('error', 'Failed to save message.');
+        } else {
+          // Broadcast the message to all connected clients
+          io.emit('chat-message', data);
+        }
+      }
+    );
+  });
+
+  // Disconnect event
+  socket.on('disconnect', () => {
+    console.log('A user disconnected.');
+  });
+});
+
 // Spotify API
-// See : https://developer.spotify.com/documentation/web-api/concepts/authorization
-const token = 'BQAZHZW2LrdgLoWGXVkGZRcySFOZxRzhueUQQZUU1SKdfxVEg-AbKEt1PDaQeb-1R1q_B_xQ1d7nkIJbUdQC9_3ja5QUPAVQ054wuGyqfOmVps_Yttg0MkQQebDx8kTf6FAQza52RbArRIm1L-aFcoki-r7ldrEgKnJhEYF6-ME6-R9HAal4I5tz-AEs5ACQkGYg_Ouek0uTP7-8P2aq8aCm9U2cc_hGMtoOYk0QVK2yvtp10pIG6-jQyHHpLzjsAc_7-0dE7QBJmTWZPtRIH0g-mjugNgMz';
+// Authorization token that must have been created previously. See : https://developer.spotify.com/documentation/web-api/concepts/authorization
+const token = 'BQBAtMMfgrGqpDOYoewqKH5yxFn4xKHyZqSKWbPmXYzwCvfax43wpOzZwZY4BBGScezzpk8XHfSlFyMnxZFs4pU7s4YayzZshpY9EH3ePXI_RyfYsr8MGgriPRhsbMGWbthhH_JS-j_ZJD5bhHtuC6YjTRVqLcJDE3oDBtO4xSU2cFu9AesWL7oF61Q_TGmpooJw2yyyVq1r-Nav7kbaXtUsiyrWRBoWzB2dYpXO4Zmy7RRcKQEmBJzdYAPt85RJKxuKwhhyG4kuEv0xEUstA6GTO4_u6erU';
 async function fetchWebApi(endpoint, method, body) {
   const res = await fetch(`https://api.spotify.com/${endpoint}`, {
     headers: {
@@ -217,14 +288,14 @@ async function getTopTracks(){
     'v1/me/top/tracks?time_range=long_term&limit=5', 'GET'
   )).items;
 }
-// Log top Spotify tracks
-getTopTracks().then(topTracks => {
-  console.log(
-    topTracks?.map(
-      ({ name, artists }) => `${name} by ${artists.map(artist => artist.name).join(', ')}`
-    )
-  );
-});
+
+const topTracks = await getTopTracks();
+console.log(
+  topTracks?.map(
+    ({name, artists}) =>
+      `${name} by ${artists.map(artist => artist.name).join(', ')}`
+  )
+);
 //end of Spotify API
 
 app.listen(port, () => {
