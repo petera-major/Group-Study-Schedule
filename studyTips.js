@@ -1,5 +1,3 @@
-
-// Array of study tips
 const studyTips = [
   "Set specific goals for each study session.",
   "Take regular breaks using the Pomodoro Technique.",
@@ -23,11 +21,9 @@ const studyTips = [
   "Join a study group to collaborate and share insights."
 ];
 
-// Function to generate a random study tip
 function getRandomStudyTip() {
   const randomIndex = Math.floor(Math.random() * studyTips.length);
   return studyTips[randomIndex];
 }
 
-// Display the random study tip
-console.log("Your Study Tip: " + getRandomStudyTip());
+console.log("Study Tip: " + getRandomStudyTip());
