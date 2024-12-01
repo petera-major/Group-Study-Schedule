@@ -240,7 +240,7 @@ app.post('/schedule-session', (req, res) => {
   );
 });
 
-// Real-time chat integration using Socket.IO
+// Real-time chat using Socket.IO
 io.on('connection', (socket) => {
   console.log('A user connected.');
 
@@ -255,7 +255,6 @@ io.on('connection', (socket) => {
           console.error('Error saving message to DB:', err);
           socket.emit('error', 'Failed to save message.');
         } else {
-          // Broadcast the message to all connected clients
           io.emit('chat-message', data);
         }
       }
@@ -297,6 +296,21 @@ console.log(
   )
 );
 //end of Spotify API
+
+app.get('/events', (req, res) => {
+  db.all('SELECT * FROM sessions', [], (err, rows) => {
+    if (err) return res.status(500).send('Error fetching events.');
+    
+    const events = rows.map(row => ({
+      title: `Session with ${row.teacher_email}`,
+      session_time: row.session_time,  // Ensure this is in the correct format (ISO)
+      email: row.email,
+    }));
+    
+    res.json(events);
+  });
+});
+
 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
