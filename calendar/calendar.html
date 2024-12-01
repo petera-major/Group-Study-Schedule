@@ -1,0 +1,50 @@
+<!--calendar.html-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Study Group Calendar</title>
+  <link rel="stylesheet" href="/styles/calendar.css"> <!-- Custom CSS -->
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Study Group Calendar</h1>
+    </header>
+
+    <section class="calendar-container">
+      <div class="calendar-nav">
+        <button id="prevMonth">Previous</button>
+        <h2 id="currentMonth"></h2>
+        <button id="nextMonth">Next</button>
+      </div>
+      <div id="calendar">
+        <!-- Calendar will be dynamically created here -->
+      </div>
+    </section>
+
+    <section class="session-container">
+      <h2>Schedule a Session</h2>
+      <form id="sessionForm">
+        <label for="sessionDate">Session Date:</label>
+        <input type="date" id="sessionDate" name="sessionDate" required>
+
+        <label for="sessionTime">Session Time:</label>
+        <input type="time" id="sessionTime" name="sessionTime" required>
+
+        <label for="teacherEmail">Teacher Email:</label>
+        <input type="email" id="teacherEmail" name="teacherEmail" required>
+
+        <button type="submit">Schedule Session</button>
+      </form>
+    </section>
+
+    <footer>
+      <button onclick="location.href='/chatroom'">Go to Chat Room</button>
+    </footer>
+  </div>
+
+  <script src="/scripts/calendar.js"></script> <!-- Custom JS for calendar -->
+</body>
+</html>
