@@ -1,10 +1,9 @@
-// Javascriot for frontend chatroom with whiteboard
 // Initialize Socket.IO
 const socket = io(); // Connects to the backend
 
 // Chat functionality
-const chatMessages = document.getElementById('chatMessages');
-const chatInput = document.getElementById('chatInput');
+const messagesDiv = document.getElementById('messages');
+const messageInput = document.getElementById('messageInput');
 const sendMessageButton = document.getElementById('sendMessageButton');
 
 sendMessageButton.addEventListener('click', sendMessage);
@@ -12,124 +11,97 @@ sendMessageButton.addEventListener('click', sendMessage);
 socket.on('chat-message', (data) => {
     const messageElement = document.createElement('div');
     messageElement.textContent = `${data.user_name}: ${data.content}`;
-    chatMessages.appendChild(messageElement);
-    chatMessages.scrollTop = chatMessages.scrollHeight; 
+    messagesDiv.appendChild(messageElement);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
 });
 
 function sendMessage() {
-    const message = chatInput.value.trim();
+    const message = messageInput.value.trim();
     if (!message) return;
 
-    const user_id = 1; 
-    const user_name = 'User1'; 
-
-    socket.emit('chat-message', { user_id, user_name, content: message });
-    chatInput.value = ''; 
+    socket.emit('chat-message', { user_id: 1, user_name: 'User1', content: message });
+    messageInput.value = '';
+}
 
 // Whiteboard functionality
-const canvas = document.getElementById('whiteboard');
+const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 const colorPicker = document.getElementById('colorPicker');
 const lineWidthInput = document.getElementById('lineWidth');
+const eraseButton = document.getElementById('eraseButton');
 
-canvas.width = 500;
-canvas.height = 300;
+let drawing = false;
+let currentMode = 'pen';
+let lastX = 0, lastY = 0;
 
-let isDrawing = false;
-let lastX = 0;
-let lastY = 0;
-
-// Set default color and line width
-ctx.strokeStyle = colorPicker.value;
-ctx.lineWidth = lineWidthInput.value;
-
-// Emit draw data
-function emitDrawData(drawData) {
-    socket.emit('draw', drawData);
+function resizeCanvas() {
+    canvas.width = canvas.parentElement.clientWidth;
+    canvas.height = canvas.parentElement.clientHeight;
 }
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
 
-// Handle drawing locally and send data to server
+eraseButton.addEventListener('click', () => {
+    currentMode = currentMode === 'erase' ? 'pen' : 'erase';
+    eraseButton.textContent = currentMode === 'erase' ? 'Switch to Pen' : 'Switch to Erase';
+});
+
 canvas.addEventListener('mousedown', (e) => {
-    isDrawing = true;
+    drawing = true;
     [lastX, lastY] = [e.offsetX, e.offsetY];
 });
 
 canvas.addEventListener('mousemove', (e) => {
-    if (!isDrawing) return;
+    if (!drawing) return;
 
     const currentX = e.offsetX;
     const currentY = e.offsetY;
 
-    ctx.strokeStyle = colorPicker.value; // Update color
-    ctx.lineWidth = lineWidthInput.value; // Update line width
-    ctx.lineJoin = 'round';
-    ctx.lineCap = 'round';
+    if (currentMode === 'pen') {
+        ctx.strokeStyle = colorPicker.value;
+        ctx.lineWidth = lineWidthInput.value;
 
-    ctx.beginPath();
-    ctx.moveTo(lastX, lastY);
-    ctx.lineTo(currentX, currentY);
-    ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(lastX, lastY);
+        ctx.lineTo(currentX, currentY);
+        ctx.stroke();
 
-    emitDrawData({ lastX, lastY, currentX, currentY, color: ctx.strokeStyle, width: ctx.lineWidth });
+        socket.emit('draw', { lastX, lastY, currentX, currentY, color: ctx.strokeStyle, width: ctx.lineWidth });
+    } else {
+        ctx.clearRect(currentX - 5, currentY - 5, 10, 10);
+    }
+
     [lastX, lastY] = [currentX, currentY];
 });
 
-canvas.addEventListener('mouseup', () => (isDrawing = false));
-canvas.addEventListener('mouseout', () => (isDrawing = false));
+canvas.addEventListener('mouseup', () => (drawing = false));
+canvas.addEventListener('mouseout', () => (drawing = false));
 
-// Handle clear button
-document.querySelector('button[onclick="clearWhiteboard()"]').addEventListener('click', () => {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    socket.emit('clear-whiteboard'); // Notify server
-});
-
-// Receive drawing data from other clients
-socket.on('draw', (drawData) => {
-    ctx.strokeStyle = drawData.color;
-    ctx.lineWidth = drawData.width;
-    ctx.lineJoin = 'round';
-    ctx.lineCap = 'round';
+socket.on('draw', (data) => {
+    ctx.strokeStyle = data.color;
+    ctx.lineWidth = data.width;
 
     ctx.beginPath();
-    ctx.moveTo(drawData.lastX, drawData.lastY);
-    ctx.lineTo(drawData.currentX, drawData.currentY);
+    ctx.moveTo(data.lastX, data.lastY);
+    ctx.lineTo(data.currentX, data.currentY);
     ctx.stroke();
 });
 
-// Receive clear event
-socket.on('clear-whiteboard', () => {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-});
-// Initialize SpeechRecognition API
+// Speech-to-text
 const speechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 const recognition = new speechRecognition();
-recognition.continuous = false; // Stop after the first phrase
-recognition.lang = 'en-US'; // Set language to English
+recognition.lang = 'en-US';
 
-// Speech-to-text button functionality
-const speechButton = document.getElementById('speechButton');
-
-speechButton.addEventListener('click', () => {
-    recognition.start(); // Start the speech recognition
-});
-
-// Handle the result from speech recognition
-recognition.onresult = function(event) {
-    const transcript = event.results[0][0].transcript;
-    chatInput.value = transcript; // Set the text in the chat input field
+document.getElementById('speechToTextButton').addEventListener('click', () => recognition.start());
+recognition.onresult = (event) => {
+    messageInput.value = event.results[0][0].transcript;
 };
+recognition.onerror = (event) => console.error('Speech recognition error:', event.error);
 
-// Handle any errors
-recognition.onerror = function(event) {
-    console.error('Speech recognition error:', event.error);
-};
-
-// Handle color change
 colorPicker.addEventListener('input', (e) => {
-    ctx.strokeStyle = e.target.value; // Update stroke color
+    ctx.strokeStyle = e.target.value;
 });
 
-// Handle line width change
 lineWidthInput.addEventListener('input', (e) => {
-    ctx.lineWidth = e.target.value; // Update line width
+    ctx.lineWidth = e.target.value;
 });

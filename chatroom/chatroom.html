@@ -1,44 +1,97 @@
-<!--front end chat room with whiteborad-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chatroom with Whiteboard</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chatroom with Whiteboard</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: flex-start;
+      padding: 10px;
+      background-color: #0c7396;
+      font-family: Arial, sans-serif;
+    }
+
+    #whiteboard {
+      border: 1px solid black;
+      width: 70%;
+      height: 500px;
+      position: relative;
+    }
+
+    #chat {
+      width: 25%;
+      height: 500px;
+      overflow-y: scroll;
+      border: 1px solid black;
+      margin-left: 20px;
+      padding: 10px;
+    }
+
+    #controls {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+    }
+
+    button {
+      margin: 5px;
+      padding: 5px;
+      cursor: pointer;
+    }
+
+    #speechToTextButton {
+      padding: 10px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    .message-input-container {
+      display: flex;
+      margin-top: 10px;
+    }
+
+    .message-input-container input {
+      width: 100%;
+      padding: 5px;
+    }
+
+    .message-input-container button {
+      padding: 5px;
+      margin-left: 5px;
+    }
+  </style>
 </head>
 <body>
+  <div id="whiteboard">
+    <canvas id="canvas"></canvas>
+  </div>
 
-    <div class="container">
-        <!-- Chatroom -->
-        <div class="chat">
-            <div class="chat-messages" id="chatMessages"></div>
-            <textarea id="chatInput" class="chat-input" placeholder="Type a message..."></textarea>
-            <button id="sendMessageButton" class="send-button">Send Message</button>
-            <button id="speechButton" class="speech-button">Speech to Text</button>
-        </div>
-
-        
-        <div class="whiteboard-container">
-            <canvas id="whiteboard" class="whiteboard"></canvas>
-
-            <div class="controls">
-                
-                <label for="colorPicker">Color:</label>
-                <input type="color" id="colorPicker" value="#000000">
-
-                
-                <label for="lineWidth">Line Width:</label>
-                <input type="range" id="lineWidth" min="1" max="10" value="2">
-
-                
-                <button id="clear-button" onclick="clearWhiteboard()">Clear Whiteboard</button>
-            </div>
-        </div>
+  <div id="chat">
+    <div id="messages"></div>
+    <div class="message-input-container">
+      <input type="text" id="messageInput" placeholder="Type a message">
+      <button id="sendMessageButton">📨 Send</button>
     </div>
+    <button id="speechToTextButton">🎙️ Speech-to-Text</button>
+  </div>
 
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="chatroom.js"></script>
+  <div id="controls">
+    <label for="colorPicker">Color:</label>
+    <input type="color" id="colorPicker" value="#000000">
+    <label for="lineWidth">Line Width:</label>
+    <input type="range" id="lineWidth" min="1" max="10" value="2">
+     <!--<button id="penButton">🖋️Pen</button> -->
+    <button id="eraseButton">✍️Erase</button>
+  </div>
 
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="chatroom.js"></script>
 </body>
 </html>
