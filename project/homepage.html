@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Study Scheduler</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Sidebar (Static for all pages) -->
+    <aside class="sidebar">
+      <div class="user-info">
+        <img src="images/avatar.png" alt="User Avatar" class="avatar" id="logout-avatar" title="Click to Logout" />
+        <h2 id="username">Guest</h2>
+      </div>
+      <nav class="nav-menu">
+        <ul>
+          <li><a href="#home" class="nav-link">Home</a></li>
+          <li><a href="#chatroom" class="nav-link">Chatroom</a></li>
+          <li><a href="#notes" class="nav-link">Notes</a></li>
+          <li><a href="#flashcards" class="nav-link">Flashcards</a></li>
+        </ul>
+      </nav>
+      <div id="study-tips" class="study-tips">
+        <h3>Study Tip</h3>
+        <p id="random-study-tip">Loading...</p>
+      </div>
+      <div class="timer">
+        <p id="timer">00:00:00</p>
+        <img src="images/start.png" alt="Start Timer" onclick="startTimer()" />
+        <img src="images/stop.png" alt="Stop Timer" onclick="stopTimer()" />
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Homepage Content -->
+      <div id="homepage-content">
+        <section class="calendar-section">
+          <header>
+            <h1>Study Group Calendar</h1>
+          </header>
+          <div id="calendar-container"></div>
+        </section>
+
+        <!-- Chatroom Selection Section -->
+        <section class="chatroom-selection">
+          <header>
+          </header>
+          <!-- Schedule Modal -->
+          <div id="scheduleModal" class="modal hidden">
+           <div class="modal-content">
+            <h3>Schedule a Session</h3>
+            <p id="selectedDate"></p>
+            <label for="scheduleRoom">Select Room:</label>
+            <select id="scheduleRoom">
+              <option value="General">General</option>
+              <option value="Room A">Room A</option>
+              <option value="Room B">Room B</option>
+              <option value="Room C">Room C</option>
+            </select>
+            <button id="scheduleMeetingButton">Schedule</button>
+            <button id="closeModal">Close</button>
+          </div>
+        </div>
+
+        </section>
+
+        <div id="notifications-container"></div>
+
+        <!-- Bottom Widgets Section -->
+        <div class="bottom-widgets">
+          <div class="to-do-list">
+            <h3>To-Do List</h3>
+            <form id="todoForm">
+              <input type="text" id="todoInput" placeholder="Add a new task" required />
+              <button type="submit">Add</button>
+            </form>
+            <ul id="todoList"></ul>
+          </div>
+          <div class="spotify-player">
+            <h3>Spotify Player</h3>
+            <div id="spotifyTracks">
+              <p>Loading your top tracks...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Placeholder for dynamic content -->
+      <div id="main-content"></div>
+    </div>
+  </div>
+
+  <div class="modal" id="logout-modal">
+    <div class="modal-content">
+      <p>Are you sure you want to log out?</p>
+      <button id="confirm-logout">Yes</button>
+      <button id="cancel-logout">Cancel</button>
+    </div>
+  </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const username = localStorage.getItem('username');
+        if (!username) {
+            window.location.href = 'login.html'; // Redirect if not logged in
+        } else {
+            document.getElementById('username').textContent = username; // Show username
+        }
+
+        // Chatroom Selection Logic
+        document.getElementById('scheduleMeetingButton').addEventListener('click', () => {
+          const selectedRoom = document.getElementById('roomSelector').value;
+          window.location.href = `/chatroom.html?room=${encodeURIComponent(selectedRoom)}`;
+        });
+    });
+  </script>
+
+  <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+  <script src="/chatroom.js"></script>
+  <script src="script.js"></script>
+  <script src="spotify.js"></script>
+  <script src="calender.js"></script>
+  <script src="whiteboard.js"></script>
+</body>
+</html>

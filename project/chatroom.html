@@ -1,0 +1,90 @@
+<div class="chatroom-container">
+  <!-- Chatroom -->
+  <div id="chatroom">
+    <h2 id="room-name">Room: General</h2>
+    <div id="messages" class="chatbox"></div>
+    <div class="message-input-container">
+      <input type="text" id="messageInput" placeholder="Type a message">
+      <button id="sendMessageButton">📨 Send</button>
+    </div>
+    <button id="speechToTextButton">🎙️ Speech-to-Text</button>
+  </div>
+
+  <!-- Whiteboard -->
+  <div id="whiteboard">
+    <canvas id="whiteboardCanvas"></canvas>
+    <div id="controls">
+      <label for="colorPicker">Color:</label>
+      <input type="color" id="colorPicker" value="#000000">
+      <label for="lineWidth">Line Width:</label>
+      <input type="range" id="lineWidth" min="1" max="10" value="2">
+      <button id="eraseButton">Switch to Erase</button>
+      <button id="clearButton">Clear Whiteboard</button>
+      <button id="shapeTool">Shape Tool</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- Dynamic Socket.IO Script Loading -->
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    // Dynamically load the Socket.IO client script
+    const socketIoScript = document.createElement("script");
+    socketIoScript.src = "http://localhost:3000/socket.io/socket.io.js";
+    socketIoScript.onload = () => {
+      console.log("Socket.IO script loaded successfully.");
+      initializeChatroom();
+    };
+    socketIoScript.onerror = () => {
+      console.error("Failed to load the Socket.IO script.");
+    };
+    document.body.appendChild(socketIoScript);
+  });
+
+  function initializeChatroom() {
+    // Ensure the user is logged in
+    const userName = localStorage.getItem("username");
+    if (!userName) {
+      alert("Please log in to access the chatroom.");
+      window.location.href = "login.html";
+      return;
+    }
+
+    // Get room name from URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const roomName = urlParams.get("room") || "General";
+    document.getElementById("room-name").textContent = `Room: ${roomName}`;
+
+    // Initialize socket connection
+    const socket = io();
+    socket.emit("join-room", roomName);
+
+    socket.on("connect", () => {
+      console.log("Connected to the server");
+    });
+
+    socket.on("connect_error", (err) => {
+      console.error("Connection error:", err);
+    });
+
+    // Handle messages
+    const messageInput = document.getElementById("messageInput");
+    const sendMessageButton = document.getElementById("sendMessageButton");
+    const messagesContainer = document.getElementById("messages");
+
+    sendMessageButton.addEventListener("click", () => {
+      const message = messageInput.value.trim();
+      if (!message) return;
+
+      socket.emit("chat-message", { room: roomName, message });
+      messageInput.value = "";
+    });
+
+    socket.on("chat-message", (data) => {
+      const messageElement = document.createElement("div");
+      messageElement.textContent = `${data.user}: ${data.message}`;
+      messagesContainer.appendChild(messageElement);
+    });
+  }
+</script>

@@ -1,0 +1,180 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    color: black;
+    background: url('images/studyspace.jpg') no-repeat center center fixed;
+    background-size: cover;
+    display: flex;
+    flex-direction: column;
+}
+
+header {
+    background-color: rgba(0, 0, 0, 0.8);
+    padding: 10px 20px;
+    color: white;
+}
+
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header h1 {
+    font-size: 24px;
+    color: purple;
+}
+
+.login-button {
+    padding: 10px 15px;
+    background: blue;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background 0.3s;
+}
+
+.login-button:hover {
+    background: darkblue;
+}
+
+/* Main Section */
+main {
+    flex: 1;
+    padding: 20px;
+    text-align: center;
+}
+
+.info-section {
+    margin-top: 40px;
+}
+
+.image-container {
+    position: relative;
+    max-width: 800px;
+    margin: 20px auto;
+}
+
+.info-image {
+    width: 100%;
+    height: auto;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.overlay-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 90%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.overlay-text h2 {
+    color: purple;
+    font-size: 28px;
+    margin-bottom: 10px;
+}
+
+.overlay-text p {
+    font-size: 18px;
+    color: black;
+}
+
+.signup-section {
+    margin-top: 30px;
+    text-align: center;
+    color: white; 
+}
+
+.signup-section p {
+    font-size: 18px;
+    color: white; 
+}
+
+.signup-section span {
+    color: lightblue; 
+    font-weight: bold;
+}
+
+.signup-button {
+    display: inline-block;
+    padding: 10px 20px;
+    background: purple;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    margin-top: 10px;
+    transition: background 0.3s;
+}
+
+.signup-button:hover {
+    background: darkpurple;
+}
+
+.features-section {
+    margin-top: 40px;
+    padding: 20px;
+    background: rgba(194, 198, 253, 0.9);
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+
+.features-section h2 {
+    font-size: 28px;
+    color: purple;
+    margin-bottom: 20px;
+}
+
+.features-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
+
+.feature {
+    background: rgba(197, 182, 248, 0.9);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    max-width: 300px;
+    text-align: left;
+}
+
+.feature h3 {
+    font-size: 22px;
+    color: purple;
+}
+
+footer {
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    text-align: center;
+    padding: 10px;
+    margin-top: 20px;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+    flex-shrink: 0;
+}
